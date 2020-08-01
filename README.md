@@ -3,7 +3,7 @@ BrowseJs
 
 Read javascript snippet on current buffer and run it in the browser.
 
-Intended to preview the tiny js scripts in browser (in the case using webpack is too heavy).
+Intended to preview the tiny js scripts in browser (in the case using webpack is too heavy and copying and pasting to new html file is a bit pain in the neck).
 
 Installation
 ----------
