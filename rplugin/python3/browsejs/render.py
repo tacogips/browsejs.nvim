@@ -1,4 +1,4 @@
-from .parser import Css, CustomTag, Js
+from .parser import Contents
 import os
 import webbrowser
 import json
@@ -8,8 +8,8 @@ html_template = """<!DOCTYPE html>
 <head>
 	<meta charset="UTF-8">
 	<title>{name}</title>
+{custom_header_tags}
 <style> {css} </style>
-
 </head>
 <body>
 {tag}
@@ -70,12 +70,6 @@ refresh_callback({json_data});
 """
 
 
-def _get_lines(obj):
-    if obj:
-        return obj.lines
-    return []
-
-
 def save_metadata_script(body: dict, dest_path: str):
     contents = _metadata_file.format(json_data=json.dumps(body))
     with open(dest_path, "w") as f:
@@ -84,15 +78,13 @@ def save_metadata_script(body: dict, dest_path: str):
 
 def save_html(
     name,
-    js: Js,
-    css: Css,
-    custom_tag: CustomTag,
+    contents: Contents,
     dest_path: str,
     auto_reload: bool,
     timestamp: str,
     file_metadata: str,
 ):
-    tag = "\n".join(_get_lines(custom_tag))
+    tag = "\n".join(contents.custom_tags)
     if not tag:
         tag = _default_tag
 
@@ -104,8 +96,9 @@ def save_html(
 
     contents = html_template.format(
         name=name,
-        js="\n".join(_get_lines(js)),
-        css="\n".join(_get_lines(css)),
+        custom_header_tags="\n".join(contents.custom_header_tags),
+        js="\n".join(contents.js_lines),
+        css="\n".join(contents.custom_styles),
         tag=tag,
         auto_reload_script=auto_reload_script,
     )

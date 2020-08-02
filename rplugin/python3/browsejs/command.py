@@ -4,7 +4,7 @@ import os
 import hashlib
 from datetime import datetime
 
-from .parser import Parser, Js
+from .parser import Parser
 from .render import save_html, save_metadata_script, Browser
 
 
@@ -48,9 +48,7 @@ class BrowseJs(object):
 
         save_html(
             name=self.nvim.current.buffer.name,
-            js=contents.js,
-            css=contents.css,
-            custom_tag=contents.custom_tag,
+            contents=contents,
             dest_path=html_dest_path,
             auto_reload=self._do_autoreload(),
             timestamp=file_timestamp,
