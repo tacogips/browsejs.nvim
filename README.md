@@ -14,8 +14,9 @@ Plug 'tacogips/browsejs.nvim', { 'do': ':UpdateRemotePlugins' }
 ```
 
 ## Requirements
-- neovim with python3
-- linux or mac
+- Neovim with python3
+- Linux or Mac
+- Modern browser (IE is not included)
 
 Usage
 ----------
@@ -39,3 +40,5 @@ If you want to use specific browser to run js, you can specify the `g:browsejs_o
 
 The html file will be created at `tmp dir` in default.
 You can change the destination by setting the `g:browsejs_dest_dir`.
+
+Auto refreshing the file will run on buffer write by default. set `g:browsejs_auto_reload=0` to unable it.
