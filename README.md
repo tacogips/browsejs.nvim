@@ -1,6 +1,7 @@
 BrowseJs
 ===
-![BrowseJs](https://raw.github.com/tacogips/browsejs.nvim/docs/screenshot.gif)
+![BrowseJs](https://github.com/tacogips/browsejs.nvim/blob/master/doc/screenshot.gif?raw=true)
+
 
 Read javascript snippet on current buffer and run it in the browser.
 
