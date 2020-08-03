@@ -10,7 +10,7 @@ Intended to run the tiny js scripts in browser on the fly.
 Usecase:
 - Webpack is too heavy.
 - Copying and pasting to the html file is a bit pain in the neck.
-- Write p5.js interactively
+- Run p5.js interactively
 - etc
 
 Installation
