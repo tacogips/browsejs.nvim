@@ -9,8 +9,8 @@ Intended to run the tiny js scripts in browser on the fly.
 
 Usecase:
 - Webpack is too heavy.
-- Copying and pasting to the html file is a bit pain in the neck.
-- Run p5.js interactively
+- Copying and pasting js code to the html file is a bit pain in the neck.
+- Run js interactively
 - etc
 
 Installation
@@ -59,9 +59,10 @@ Availble commands:
 - `custom_tag` body tag instead of `<div id="app"></div>`
 - `style` inline css expand in `<style></style>`
 
+The codes between `{% start xxx %}` and `{% end %}` will be omitted(replaced with spaces) in generated html file.
+So you can write any tags without escaping it.
 
-
-```javscript
+```javascript
 
 // e.g.  with p5.js
 //
@@ -91,6 +92,10 @@ function setup() {
 ```
 
 Show `/example` dir for sample code.
+
+
+
+
 
 
 #### Warning
