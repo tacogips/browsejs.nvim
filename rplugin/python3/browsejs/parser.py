@@ -4,17 +4,21 @@ from typing import List, Tuple
 
 
 class Contents:
-    def __init__(self, js_lines, custom_header_tags, custom_tags, custom_styles):
+    def __init__(
+        self, js_lines, custom_header_tags, custom_tags, custom_styles, copy_files
+    ):
         self.js_lines = js_lines
         self.custom_header_tags = custom_header_tags
         self.custom_tags = custom_tags
         self.custom_styles = custom_styles
+        self.copy_files = copy_files
 
 
 class SectionType(str, Enum):
     CUSTOM_HEADER_TAG = "header_tag"
     CUSTOM_TAG = "custom_tag"
     STYLE = "style"
+    COPY = "copy"
 
     @classmethod
     def from_str(cls, s: str):
@@ -267,6 +271,7 @@ class Lexer:
 
             self._skip_white_space()
             current_char = self._get_current_char()
+            peek_char = self._peek()
 
             if not current_char:
                 self._feed_line()
@@ -278,71 +283,66 @@ class Lexer:
                 self._feed_line()
                 continue
 
-            elif current_char == "{":
-                peek_char = self._peek()
+            elif current_char == "{" and peek_char == "%":
                 maybe_start_offset = self.current_offset
-                if peek_char == "%":
-                    self._forward_current_offset(2)
-                    identifier = self._read_identifier()
+                self._forward_current_offset(2)
+                identifier = self._read_identifier()
 
-                    if identifier == "start":
-                        self._skip_white_space()
-                        section_name = self._read_identifier()
-                        section_type = SectionType.from_str(section_name)
-                        if not section_type:
+                if identifier == "start":
+                    self._skip_white_space()
+                    section_name = self._read_identifier()
+                    section_type = SectionType.from_str(section_name)
+                    if not section_type:
+                        continue
+                    self._skip_white_space()
+                    if self._at_end_of_section_closing_mark():
+                        self._forward_current_offset(2)
+                        if not self.current_section:
+                            # open section
+                            self.current_section = Section(section_type)
+                            buf_offset = self.current_offset
+                            self._read_section_line()
+                            section_line_end_offset = self.current_offset
+                            self.current_offset = buf_offset
+                            (_, section_end_idx) = self._peek_section_line()
+
+                            self.current_section.section_infos.append(
+                                SectionLineInfo(
+                                    self.current_line_idx,
+                                    maybe_start_offset,
+                                    section_end_idx,
+                                )
+                            )
                             continue
-                        self._skip_white_space()
-                        if self._at_end_of_section_closing_mark():
-                            self._forward_current_offset(2)
-                            if not self.current_section:
-                                # open section
-                                self.current_section = Section(section_type)
-                                buf_offset = self.current_offset
-                                self._read_section_line()
-                                section_line_end_offset = self.current_offset
-                                self.current_offset = buf_offset
-                                (_, section_end_idx) = self._peek_section_line()
 
+                # close section
+                elif identifier == "end":
+                    self._skip_white_space()
+                    if self._at_end_of_section_closing_mark():
+
+                        if self.current_section:
+
+                            self._forward_current_offset(2)
+                            current_offset = self.current_offset
+                            if self.current_section.is_same_line_idx_as_latest(
+                                self.current_line_idx
+                            ):
+                                self.current_section.latest_section_info().end_offset = (
+                                    current_offset
+                                )
+
+                            else:
                                 self.current_section.section_infos.append(
                                     SectionLineInfo(
                                         self.current_line_idx,
-                                        maybe_start_offset,
-                                        section_end_idx,
+                                        head_offset_of_comment_line,
+                                        current_offset,
                                     )
                                 )
-                                continue
 
-                    # close section
-                    elif identifier == "end":
-                        self._skip_white_space()
-                        if self._at_end_of_section_closing_mark():
-
-                            if self.current_section:
-
-                                self._forward_current_offset(2)
-                                current_offset = self.current_offset
-                                if self.current_section.is_same_line_idx_as_latest(
-                                    self.current_line_idx
-                                ):
-                                    self.current_section.latest_section_info().end_offset = (
-                                        current_offset
-                                    )
-
-                                else:
-                                    self.current_section.section_infos.append(
-                                        SectionLineInfo(
-                                            self.current_line_idx,
-                                            head_offset_of_comment_line,
-                                            current_offset,
-                                        )
-                                    )
-
-                                result = self.current_section
-                                self.current_section = None
-                                return result
-                else:
-                    self._forward_current_offset()
-                    continue
+                            result = self.current_section
+                            self.current_section = None
+                            return result
             else:
                 if self.current_section:
                     line = self._read_section_line()
@@ -377,6 +377,7 @@ class Parser:
         custom_header_tags = []
         custom_tags = []
         custom_styles = []
+        copy_files = []
         all_sections = lexer.all_sections()
         for each_section in all_sections:
             tpe = each_section.section_type
@@ -386,12 +387,15 @@ class Parser:
                 custom_tags += each_section.body
             elif tpe == SectionType.STYLE:
                 custom_styles += each_section.body
+            elif tpe == SectionType.COPY:
+                copy_files += each_section.body
 
         return Contents(
             js_lines=Parser.omit_section_area_from_lines(all_lines, all_sections),
             custom_header_tags=custom_header_tags,
             custom_tags=custom_tags,
             custom_styles=custom_styles,
+            copy_files=copy_files,
         )
 
     @classmethod
