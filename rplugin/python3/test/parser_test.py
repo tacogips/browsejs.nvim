@@ -115,6 +115,7 @@ var thisIsJs1 = 123.3;
   {% end %} */
 
 /* {% start style %} <br> {% end %} */
+// {% start copy %} {"from":"/some/path"} {% end %}
 //  function bbb(){}
 var thisIsJs2 = "123.3";
 function some(){
@@ -180,9 +181,14 @@ function some(){
         self.assertEqual(section.section_infos[0].start_offset, 3)
         self.assertEqual(section.section_infos[0].end_offset, 35)
 
+        section = lexer._next_section()
+        self.assertEqual(section.section_type, SectionType.COPY)
+        self.assertEqual(len(section.body), 1)
+        self.assertEqual(section.body[0], '{"from":"/some/path"} ')
+
         # read all
         lexer = Lexer(test_input)
-        self.assertEqual(len(lexer.all_sections()), 3)
+        self.assertEqual(len(lexer.all_sections()), 4)
 
     def test_lexer_tricky(self):
         test_input = """

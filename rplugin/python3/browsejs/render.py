@@ -2,6 +2,8 @@ from .parser import Contents
 import os
 import webbrowser
 import json
+from json.decoder import JSONDecodeError
+import shutil
 
 html_template = """<!DOCTYPE html>
 <html>
@@ -74,6 +76,57 @@ def save_metadata_script(body: dict, dest_path: str):
     contents = _metadata_file.format(json_data=json.dumps(body))
     with open(dest_path, "w") as f:
         f.write(contents)
+
+
+class FilePathInfo:
+    def __init__(self, path: str):
+        self.path = path
+        self.is_exists = os.path.exists(path)
+        self.is_dir = path.endswith("/") or os.path.isdir(path)
+        self.parent_dir = os.path.dirname(path)
+
+
+def copy_files(contents: Contents, dest_path: str):
+    dest_root_dir = os.path.dirname(dest_path)
+    for each_copy_line in contents.copy_files:
+        try:
+            copy_info = json.loads(each_copy_line)
+
+            # about from path
+            from_path = copy_info.get("from")
+            if not from_path:
+                continue
+
+            from_path_info = FilePathInfo(from_path)
+            if not from_path_info.is_exists:
+                continue
+
+            # about to path
+            to_path = copy_info.get("to")
+            if not to_path:
+                to_path = dest_root_dir
+            else:
+                to_path = os.path.join(dest_root_dir, to_path)
+
+            to_path_info = FilePathInfo(to_path)
+            # if `from` path is dir and `to` path is not,
+            # regard `to` path as dir path.
+            if from_path_info.is_dir and not to_path_info.is_dir:
+                to_path_info = FilePathInfo(to_path + "/")
+
+            if from_path_info.is_dir:
+                if os.path.exists(to_path_info.path):
+                    shutil.rmtree(to_path_info.path)
+
+                shutil.copytree(from_path_info.path, to_path_info.path)
+            else:
+                if not os.path.exists(to_path_info.parent_dir):
+                    os.makedirs(to_path_info.parent_dir)
+                shutil.copy(from_path_info.path, to_path_info.path)
+
+        except JSONDecodeError as e:
+            # TODO (tacogips) show errors somehow
+            continue
 
 
 def save_html(

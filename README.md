@@ -58,6 +58,7 @@ Availble commands:
 - `header_tag` expand custom tags in `<header>`
 - `custom_tag` body tag instead of `<div id="app"></div>`
 - `style` inline css expand in `<style></style>`
+- `copy` copy files to generated html dir. given `jsonl` lines that has `from` and `to` fields. `to` fields could be omitted if the destination is the top dir.
 
 The codes between `{% start xxx %}` and `{% end %}` will be omitted(replaced with spaces) in generated html file.
 So you can write any tags without escaping it.
@@ -77,6 +78,11 @@ So you can write any tags without escaping it.
 // body {padding: 0; margin: 0;} canvas {vertical-align: top;}
 // {% end %}
 
+// {% start copy  %}
+// {from:"path/to/icon"}
+// {from:"path/to/image.jpg", to:"/images/image.jpg"}
+// {% end %}
+
 let stars = []; //star array
 
 function setup() {
@@ -92,10 +98,6 @@ function setup() {
 ```
 
 Show `/example` dir for sample code.
-
-
-
-
 
 
 #### Warning

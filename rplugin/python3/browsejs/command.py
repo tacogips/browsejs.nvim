@@ -5,7 +5,7 @@ import hashlib
 from datetime import datetime
 
 from .parser import Parser
-from .render import save_html, save_metadata_script, Browser
+from .render import save_html, copy_files, save_metadata_script, Browser
 
 
 @neovim.plugin
@@ -54,6 +54,8 @@ class BrowseJs(object):
             timestamp=file_timestamp,
             file_metadata=os.path.basename(file_metadata_script_path),
         )
+
+        copy_files(contents=contents, dest_path=file_metadata_script_path)
 
         meta_body = {"timestamp": file_timestamp}
         save_metadata_script(body=meta_body, dest_path=file_metadata_script_path)
