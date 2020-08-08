@@ -108,7 +108,8 @@ class BrowseJs(object):
         if not self._do_autoreload():
             return
 
-        if not os.path.exists(self._html_dest_file_path()):
+        buf_name = self.nvim.current.buffer.name
+        if not os.path.exists(self._html_dest_file_path(buf_name)):
             return
 
-        self._save_buffer_to_file()
+        self._save_buffer_to_file(buf_name)
