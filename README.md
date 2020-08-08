@@ -33,6 +33,9 @@ Open javascript file and execute `:BrowseJs` to open local html file in browser.
 
 If you need open the file on http server, run `BrowseJsServer`(http server mode).
 
+Call `BrowseJsStopeServer` to stop http server.
+
+
 It execute `pyton -m http.server` and open the url `http://localhost:8000/` in browser instead of local file path.
 
 ### Custom html tag and css

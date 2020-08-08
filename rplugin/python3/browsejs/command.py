@@ -96,12 +96,18 @@ class BrowseJs(object):
         (html_dest_path, _) = self._save_buffer_to_file(buf_name)
 
         server = self._get_http_server(buf_name)
-        process = server.invoke()
+        server.invoke()
 
         browser = Browser(self.nvim.vars.get("browsejs_open_cmd"))
         url = f"http://localhost:{server.port}"
         browser.open_url(url)
-        return process
+        return server
+
+    @neovim.command("BrowseJsStopServer")
+    def stop_server(self):
+        buf_name = self.nvim.current.buffer.name
+        server = self._get_http_server(buf_name)
+        server.kill_process()
 
     @neovim.autocmd("BufWritePost", pattern="*.js")
     def refresh(self):

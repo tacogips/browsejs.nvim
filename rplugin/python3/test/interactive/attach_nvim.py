@@ -12,7 +12,7 @@ def run(nvim_listner_socket_path):
     browse_js.open_local()
     p = browse_js.open_server()
     time.sleep(3)
-    p.kill()
+    p.kill_process()
 
 
 if __name__ == "__main__":
