@@ -168,9 +168,16 @@ class Browser:
     def __init__(self, open_cmd=None):
         self.open_cmd = open_cmd
 
-    def open(self, file_path: str):
+    def open(self, file_path: str, with_http_server=False):
         # TODO(tacogips) windows uncompatible now
         if self.open_cmd:
-            os.system(open_cmd + " ", file_path)
+            os.system(open_cmd + " " + file_path)
         else:
             webbrowser.open("file://" + file_path)
+
+    def open_url(self, url: str):
+        # TODO(tacogips) windows uncompatible now
+        if self.open_cmd:
+            os.system(open_cmd + " " + url)
+        else:
+            webbrowser.open(url)
